@@ -12,7 +12,10 @@ The following files contain code from an apple WebGL demo
   scripts/vectormath.js
   scripts/math.js
   scripts/draw.js
-. . .and are licensed thus:
+  scripts/dat.gui
+  scripts/require.js
+  
+. . .and are licensed thus (note: there are multiple licenses here):
 
 /* 
  * Copyright (C) 2009 Apple Inc. All Rights Reserved.
@@ -99,3 +102,17 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+public/scripts/dat.gui has the following license disclaimer:
+/**
+ * dat-gui JavaScript Controller Library
+ * http://code.google.com/p/dat-gui
+ *
+ * Copyright 2011 Data Arts Team, Google Creative Lab
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ */
