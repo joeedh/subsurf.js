@@ -18,8 +18,7 @@ define([
   
   var vertex_smooth = exports.vertex_smooth = function(mesh) {
     var cos = [];
-    for (var i=0; i<mesh.verts.length; i++) {
-      var v = mesh.verts[i];
+    mesh.verts.forEach(function(v) {
       
       var co = new Vector3();
       
@@ -31,41 +30,42 @@ define([
       }
       
       co.mulScalar(1.0 / (v.edges.length));
-    }
+    });
     
-    for (var i=0; i<mesh.verts.length; i++) {
-      var v = mesh.verts[i];
-      
+    var i = 0;
+    mesh.verts.forEach(function(v) {
       v.co.load(cos[i]);
-    }
+      i++;
+    });
   }
   
   var subdivide = exports.subdivide = function(mesh) {
     console.log("subdivision!");
     
     var vedmap = {};
-    for (var i=0; i<mesh.edges.length; i++) {
-      var e = mesh.edges[i];
-      
+    mesh.edges.forEach(function(e) {
       var newv = mesh.make_vert();
       newv.co.load(e.v1.co).add(e.v2.co).mulScalar(0.5);
       vedmap[e.eid] = newv;
-    }
+    }, this);
     
     var faces = [];
-    for (var i=0; i<mesh.faces.length; i++) {
-      faces.push(mesh.faces[i]);
-    }
+    mesh.faces.forEach(function(f) {
+      faces.push(f);
+    });
     
     var delset = {};
     var deleset = {};
-    for (var i=0; i<mesh.edges.length; i++) {
-      deleset[mesh.edges[i].eid] = mesh.edges[i];
-    }
+    
+    mesh.edges.forEach(function(e) {
+      deleset[e.eid] = e;
+    });
     
     var cent = new Vector3();
+    
     for (var i=0; i<faces.length; i++) {
       var f = faces[i];
+      
       cent.zero();
       var l = f.l;
       do {

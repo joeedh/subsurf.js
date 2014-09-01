@@ -117,6 +117,10 @@ define([
       this.curid = Math.max(this.curid, id+1);
     },
     
+    set_cur : function(cur) {
+      this.curid = cur;
+    },
+    
     toJSON : function() {
       return this.curid;
     }

@@ -81,7 +81,8 @@ body, html {
     float di=0.0; float dj=0.0;
     vec3 du, dv;
     
-    // /*
+    //optimized evaluation code, disabled by default due to firefox problems
+    /*
     vec3 p00 = get_patch1_point(f, 0.0, 0.0);
     vec3 p01 = get_patch1_point(f, 0.0, 1.0);
     vec3 p02 = get_patch1_point(f, 0.0, 2.0);
@@ -101,13 +102,11 @@ body, html {
     vec3 p31 = get_patch1_point(f, 3.0, 1.0);
     vec3 p32 = get_patch1_point(f, 3.0, 2.0);
     vec3 p33 = get_patch1_point(f, 3.0, 3.0);
-    // */
     float u2=u*u, u3=u2*u, v2=v*v, v3=v2*v;
     float u1 = u-1.0, v1 = v-1.0;
     
     //evaluation equation optimized with REDUCE
     for (int i=0; i<3; i++) {    
-    //  /* 
      p[i] = (((((u1*p00[i]-3.0*p10[i]*u)*u1+3.0*p20[i]*u2)*u1-
         p30[i]*u3)*v1-3.0*(((u1*p01[i]-3.0*p11[i]*u)*u1+3.0*
         p21[i]*u2)*u1-p31[i]*u3)*v)*v1+3.0*(((u1*p02[i]-3.0*
@@ -115,8 +114,9 @@ body, html {
         (((u1*p03[i]-3.0*p13[i]*u)*u1+3.0*p23[i]*u2)*u1-p33[i]*
         u3)*v3;
     }
+    // */
     
-    /*original patch evaluation, based off of Wikipedia article
+    /*original patch evaluation, based off of Wikipedia article*/
     for (int i=0; i<4; i++) {
       dj = 0.0;
       for (int j=0; j<4; j++) {
@@ -132,7 +132,6 @@ body, html {
       }
       di += 1.0;
     }
-    */
     
     return vec4(p[0], p[1], p[2], 1.0);
   }

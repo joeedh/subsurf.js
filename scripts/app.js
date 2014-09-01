@@ -43,6 +43,10 @@ define([
     this.event_manager = new util.EventManager();
     this.mesh = mesh.Mesh.createCube();
     
+    this.params = {
+      steps : 10
+    };
+    
     this.ss_mesh = undefined;
   };
  
@@ -167,8 +171,19 @@ define([
       m.regen_render();
       this.subsurf();
     }, 
+    
+    change_steps : function(steps) {
+      this.params.steps = steps;
+      if (this.ss_mesh == undefined) return;
+      
+      patch.change_steps(this.gl, this.ss_mesh, steps);
+    },
+    
     subsurf : function() {
-      this.ss_mesh = patch.gpu_subsurf(this.gl, this.mesh);
+      if (this.ss_mesh != undefined) {
+        patch.destroy_subsurf_mesh(this.gl, this.ss_mesh);
+      }
+      this.ss_mesh = patch.gpu_subsurf(this.gl, this.mesh, Math.floor(this.params.steps));
     },
     
     on_keydown : function(event) {

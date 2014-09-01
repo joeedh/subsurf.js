@@ -472,14 +472,67 @@ define([
       return v == e.v1 || v == e.v2;
   }
 
+  var change_steps = exports.change_steps = function(gl, ss_mesh, steps) {
+    if (steps == ss_mesh.render.ss_steps) return;
+    
+    var vertbuf = [];
+    var df = 1.0 / (steps-1);
+    
+    for (var i=0; i<steps; i++) {
+      for (var j=0; j<steps; j++) {
+        vertbuf.push(i*df);
+        vertbuf.push(j*df);
+      }
+    }
+    
+    vertbuf = new Float32Array(vertbuf);
+
+    var edgebuf = [];
+    var u = 1.0 / (steps-1);
+    for (var i=0; i<steps; i++) {
+      edgebuf.push(1.0);
+      edgebuf.push(i*u);
+    }
+    
+    var idxbuf = [];
+    for (var i=0; i<steps-1; i++) {
+      for (var j=0; j<steps-1; j++) {
+        idxbuf.push(j*steps + i); idxbuf.push((j+1)*steps + i); idxbuf.push((j+1)*steps+i+1);
+        idxbuf.push(j*steps+i); idxbuf.push((j+1)*steps+i+1); idxbuf.push(j*steps+i+1);
+      }
+    }
+    
+    ss_mesh.render.numIndices = idxbuf.length;
+    idxbuf = new Uint16Array(idxbuf);
+    
+    ss_mesh.render.destroy(gl);
+    
+    var vbuf = ss_mesh.render.vertbuf = ss_mesh.render.buffer(gl, "vertbuf");
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbuf);
+    gl.bufferData(gl.ARRAY_BUFFER, vertbuf, gl.STATIC_DRAW);
+
+    edgebuf = new Float32Array(edgebuf);
+    
+    var ebuf = ss_mesh.render.buffer(gl, "edgebuf");
+    gl.bindBuffer(gl.ARRAY_BUFFER, ebuf);
+    gl.bufferData(gl.ARRAY_BUFFER, edgebuf, gl.STATIC_DRAW);
+    
+    var indexbuf = ss_mesh.render.buffer(gl, "indexbuf");
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexbuf);
+    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idxbuf, gl.STATIC_DRAW);
+
+    ss_mesh.render.ss_steps = steps;
+  }
+  
   var gpu_subsurf = exports.gpu_subsurf = function(gl, in_mesh2, steps, ss_mesh) {
     var m = new mesh.Mesh()
     
     if (steps == undefined) {
       steps = 18.0;
     }
+    
     var themesh = null;
-  
+    
     themesh = in_mesh2.copy()
     subdiv.subdivide(themesh);
    
@@ -726,14 +779,14 @@ define([
     */
   }
 
-  function destroy_subsurf_mesh(gl, ss_mesh)
+  var destroy_subsurf_mesh = exports.destroy_subsurf_mesh = function(gl, ss_mesh)
   {
     if (ss_mesh == undefined) {
       console.trace();
       return;
     }
     
-    ss_mesh.render.destroy();
+    ss_mesh.render.destroy(gl);
     gl.deleteTexture(ss_mesh.render.ss_tex);
     gl.deleteTexture(ss_mesh.render.util_tex);
   }

@@ -67,7 +67,7 @@ define([
         file : ""
       }
       
-      gui.add(guiobj, "load_obj").name("Load OBJ");
+      gui.add(guiobj, "load_obj").name("Load OBJ(click me");
       
       //recursively search for input DOM node,
       //hopefully this won't break on any future
@@ -91,6 +91,15 @@ define([
       
       input.type = "file";
       filedom = input;
+      
+      var this2 = this;
+      function update_mesh() {
+        this2.state.subsurf();
+      }
+
+      gui.add(this.state.params, "steps", 3, 100).onChange(function() {
+        this2.state.change_steps(Math.floor(this2.state.params.steps));
+      });
       
       console.log(input);
     },

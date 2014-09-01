@@ -1109,73 +1109,7 @@ define(["util", "vectormath"], function(util, vectormath) {
     _isrp_ret.add(r);
     return _isrp_ret;
   };
-  
-  var mesh_find_tangent=exports.mesh_find_tangent = function mesh_find_tangent(mesh, viewvec, offvec, projmat, verts) {
-    if (verts==undefined)
-      verts = mesh.verts.selected;
-    var vset=new set();
-    var eset=new set();
-    var __iter_v=__get_iter(verts);
-    var v;
-    while (1) {
-      var __ival_v=__iter_v.next();
-      if (__ival_v.done) {
-          break;
-      }
-      v = __ival_v.value;
-      vset.add(v);
-    }
-    var __iter_v=__get_iter(vset);
-    var v;
-    while (1) {
-      var __ival_v=__iter_v.next();
-      if (__ival_v.done) {
-          break;
-      }
-      v = __ival_v.value;
-      var __iter_e=__get_iter(v.edges);
-      var e;
-      while (1) {
-        var __ival_e=__iter_e.next();
-        if (__ival_e.done) {
-            break;
-        }
-        e = __ival_e.value;
-        if (vset.has(e.other_vert(v))) {
-            eset.add(e);
-        }
-      }
-    }
-    if (eset.length==0) {
-        return new Vector3(offvec);
-    }
-    var tanav=new Vector3();
-    var evec=new Vector3();
-    var tan=new Vector3();
-    var co2=new Vector3();
-    var __iter_e=__get_iter(eset);
-    var e;
-    while (1) {
-      var __ival_e=__iter_e.next();
-      if (__ival_e.done) {
-          break;
-      }
-      e = __ival_e.value;
-      evec.load(e.v1.co).multVecMatrix(projmat);
-      co2.load(e.v2.co).multVecMatrix(projmat);
-      evec.sub(co2);
-      evec.normalize();
-      tan[0] = evec[1];
-      tan[1] = -evec[0];
-      tan[2] = 0.0;
-      if (tan.dot(offvec)<0.0)
-        tan.mulScalar(-1.0);
-      tanav.add(tan);
-    }
-    tanav.normalize();
-    return tanav;
-  };
-  
+   
   var Mat4Stack=exports.Mat4Stack = function() {
     this.stack = [];
     this.matrix = new Matrix4();

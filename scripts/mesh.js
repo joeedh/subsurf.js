@@ -2,8 +2,8 @@
   this file is public domain
 */
 define([
-  "util", "vectormath", "math", "draw"
-], function(util, vectormath, math, draw) {
+  "util", "vectormath", "math", "draw", "elementarray"
+], function(util, vectormath, math, draw, elementarray) {
   "use strict";
   
   var exports = {};
@@ -13,6 +13,7 @@ define([
   var Vector4 = vectormath.Vector4;
   var Quat = vectormath.Quat;
   var Matrix4 = vectormath.Matrix4;
+  var ElementArray = elementarray.ElementArray;
   
   var ElementTypes = exports.ElementTypes = {
     VERTEX : 1,
@@ -35,7 +36,7 @@ define([
   
   util.new_prototype(Element, {
     __keystr__ : function() {
-      return this.constructor.name[5] + this.eid;
+      return this.eid;
     }
   }, "mesh.Element");
   
@@ -205,14 +206,23 @@ define([
   
   Edge.prototype = util.inherit(Edge, Element, {
     other_face : function(f) {
-      if (this.faces.length < 2) return f;
+      var l = this.l.radial_next;
       
-      if (this.faces[0] == f)
-        return this.faces[1];
-      else if (this.faces[1] == f)
-        return this.faces[0];
-      else
+      if (l == undefined) {
         console.trace("Error in Edge.other_face; f was:", f);
+        return undefined;
+      }
+      
+      while (l.f == f && l != this.l) {
+        l = l.radial_next;
+      }
+      
+      if (l.f == f) {
+        console.trace("Error in Edge.other_face; f was:", f);
+        return undefined;
+      }
+      
+      return l;
     },
     
     other_vert : function(v) {
@@ -238,7 +248,9 @@ define([
   };
   
   util.inherit(Loop, Element, {
-    
+    __keystr__ : function() {
+      return "L" + this.f.eid + "|" + this.eid;
+    }
   });
   
   var Face = exports.Face = function() {
@@ -290,12 +302,13 @@ define([
   }, "mesh.Face");
   
   var Mesh = exports.Mesh = function() {
-    this.verts = [];
-    this.edges = [];
-    this.faces = [];
+    this.eidmap = {};
+    
+    this.verts = new ElementArray(this.eidmap);
+    this.edges = new ElementArray(this.eidmap);
+    this.faces = new ElementArray(this.eidmap);
     
     this.eidgen = new util.IDGen();
-    this.eidmap = {};
     
     this.render = new draw.RenderBuffers();
   };
@@ -304,6 +317,7 @@ define([
     make_vert : function(co, no) {
       var v = new Vertex(co, no);
       v.eid = this.eidgen.gen();
+      
       this.eidmap[v.eid] = v;
       
       this.verts.push(v);
@@ -419,6 +433,7 @@ define([
       //ensure all edges exist
       f.l = new Loop(verts[0], this.make_edge(verts[0], verts[1], true), f);
       f.l.eid = this.eidgen.gen();
+      f.l.eid = 0;
       var lastl = f.l;
       
       for (var i=1; i<verts.length; i++) {
@@ -428,6 +443,7 @@ define([
         
         var l = new Loop(v1, e, f);
         l.eid = this.eidgen.gen();
+        l.eid = i;
         
         lastl.next = l;
 
@@ -452,26 +468,36 @@ define([
       this.eidgen.max_id(eid);
       delete this.eidmap[e.eid];
       
-      e.eid = eid;
+      switch (e.type) {
+        case ElementTypes.VERTEX:
+          this.verts.change_eid(e, eid);
+          break;
+        case ElementTypes.EDGE:
+          this.edges.change_eid(e, eid);
+          break;
+        case ElementTypes.FACE:
+          this.faces.change_eid(e, eid);
+          break;
+        default:
+          e.eid = eid;
+          break;
+      }
+      
       this.eidmap[e.eid] = e;
     },
     
     copy : function() {
       var mesh2 = new Mesh();
       
-      for (var i=0; i<this.verts.length; i++) {
-        var v = this.verts[i];
-        
-        var newv = mesh2.make_vert(this.verts[i].co, this.verts[i].no);
+      this.verts.forEach(function(v) {
+        var newv = mesh2.make_vert(v.co, v.no);
         newv.flag = v.flag;
         
         //set correct eid
         mesh2.change_eid(newv, v.eid);
-      }
+      }, this);
       
-      for (var i=0; i<this.edges.length; i++) {
-        var e = this.edges[i];
-        
+      this.edges.forEach(function(e) {
         var v1 = mesh2.eidmap[e.v1.eid];
         var v2 = mesh2.eidmap[e.v2.eid];
         
@@ -480,11 +506,9 @@ define([
         
         //set correct eid
         mesh2.change_eid(newe, e.eid);
-      };
+      }, this);
       
-      for (var i=0; i<this.faces.length; i++) {
-        var f = this.faces[i];
-        
+      this.faces.forEach(function(f) {
         var verts = [];
         var l = f.l;
         var k = 0;
@@ -506,7 +530,7 @@ define([
         
          //set correct eid
         mesh2.change_eid(newf, f.eid);
-     }
+     }, this);
       
       return mesh2;
     },
@@ -515,6 +539,20 @@ define([
       this.verts = mesh.verts;
       this.edges = mesh.edges;
       this.faces = mesh.faces;
+      
+      this.eidgen.set_cur(0);
+      
+      mesh.verts.forEach(function(v) {
+        this.eidgen.max_id(v.eid);
+      }, this);
+      
+      mesh.edges.forEach(function(e) {
+        this.eidgen.max_id(e.eid);
+      }, this);
+      
+      mesh.faces.forEach(function(f) {
+        this.eidgen.max_id(f.eid);
+      }, this);
     },
     
     kill_vert : function(v) {
@@ -639,19 +677,15 @@ define([
     },
     
     recalc_normals : function() {
-      var faces = this.faces;
-      var verts = this.verts;
       var n1 = new Vector3();
       var n2 = new Vector3();
       var n3 = new Vector3();
       
-      for (var i=0; i<verts.length; i++) {
-        verts[i].no.zero();
-      }
+      this.verts.forEach(function(v) {
+        v.no.zero();
+      }, this);
       
-      for (var i=0; i<faces.length; i++) {
-        var f = faces[i];
-        
+      this.faces.forEach(function(f) {
         n1.load(f.l.v.co).sub(f.l.next.v.co).normalize();
         n2.load(f.l.prev.v.co).sub(f.l.next.v.co).normalize();
         n1.cross(n2).normalize();
@@ -667,11 +701,11 @@ define([
         } while (l != f.l);
         
         f.center.mulScalar(1.0/f.totvert);
-      }
+      }, this);
       
-      for (var i=0; i<verts.length; i++) {
-        verts[i].no.normalize();
-      }
+      this.verts.forEach(function(v) {
+        v.no.normalize();
+      }, this);
     },
     
     draw : function(gl, drawmats) {
@@ -739,9 +773,9 @@ define([
     var vmap = {};
     var eidmap = {};
     
-    for (var i=0; i<mesh.verts.length; i++) {
-      verts.push(mesh.verts[i]);
-    }
+    mesh.verts.forEach(function(v) {
+      verts.push(v);
+    }, this);
     
     /*
     verts.sort(function(a, b) {
@@ -785,20 +819,17 @@ define([
       }
     }
     
-    for (var i=0; i<mesh.edges.length; i++) {
-      var e = mesh.edges[i];
+    mesh.edges.forEach(function(e) {
       var v1 = vmap[e.v1.eid];
       var v2 = vmap[e.v2.eid];
       
-      if (v1 == v2) continue;
+      if (v1 == v2) return;
       
       var newe = mesh2.make_edge(v1, v2, true);
       newe.flag = e.flag;
-    }
+    }, this);
     
-    for (var i=0; i<mesh.faces.length; i++) {
-      var f = mesh.faces[i];
-      
+    mesh.faces.forEach(function(f) {
       var verts2 = [];
       var vset = {};
       var l = f.l;
@@ -816,11 +847,10 @@ define([
         var newf = mesh2.make_face(verts2);
         newf.flag = f.flag;
       }
-    }
+    }, this);
     
-    mesh.verts = mesh2.verts;
-    mesh.edges = mesh2.edges;
-    mesh.faces = mesh2.faces;
+    mesh.load(mesh2);
+    
     mesh.recalc_normals();
     mesh.regen_render();
   };
