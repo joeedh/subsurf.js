@@ -1,8 +1,9 @@
 # subsurf.js
 
-Subsurf.js is a small library for rendering subdivision surfaces on the GPU
-with WebGL.  It works by subdividing an input mesh once, decomposing it into
-bicubic patches, then rendering said patches on the GPU. 
+GPU/WebGL subdivision surface rendering library. It works by subdividing an input mesh 
+once, decomposing it into bicubic patches, which it evaluates on the GPU.  It does
+this by packing the patch parameters into a texture, creating a 2d grid of 
+u,v values, then feeding it to the vertex shader. 
 
 Right now, the "library" is more of a demo, as I'm unsure what sort of API
 would be best.
