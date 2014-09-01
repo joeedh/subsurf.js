@@ -1,3 +1,6 @@
+/*
+  this file is public domain
+*/
 if (Array.prototype.pop_i == undefined) {
   Array.prototype.pop_i = function(i) {
     var ret = this[i];

@@ -12,7 +12,8 @@ define([
   var Matrix4 = vectormath.Matrix4;
   var Quat = vectormath.Quat;
     
-  /*loadShader comes with the following copyright disclaimer:*/
+  /*loadShader came with the following copyright disclaimer:*/
+  
   /*
    * Copyright (C) 2009 Apple Inc. All Rights Reserved.
    *

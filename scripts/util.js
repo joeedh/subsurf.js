@@ -1,4 +1,7 @@
 "use strict";
+/*
+  this file is public domain
+*/
 
 /*
   a really small utility library.  includes a really simple type/class system,

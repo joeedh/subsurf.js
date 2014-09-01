@@ -1,3 +1,6 @@
+/*
+  this file is public domain
+*/
 define([
   "util", "vectormath", "math", "draw"
 ], function(util, vectormath, math, draw) {

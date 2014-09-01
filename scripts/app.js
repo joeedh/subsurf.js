@@ -1,3 +1,6 @@
+/*
+  this file is public domain
+*/
 //console shortcut for debugging purposes
 var S = undefined; //state
 

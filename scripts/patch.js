@@ -1,3 +1,6 @@
+/*
+  this file is public domain
+*/
 var _patch;
 
 define([
