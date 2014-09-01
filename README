@@ -1,8 +1,29 @@
 # subsurf.js
 
 Subsurf.js is a small library for rendering subdivision surfaces on the GPU
-with WebGL.  It works by subdivide an input mesh once, decomposing it into
+with WebGL.  It works by subdividing an input mesh once, decomposing it into
 bicubic patches, then rendering said patches on the GPU. 
 
 Right now, the "library" is more of a demo, as I'm unsure what sort of API
 would be best.
+
+Contributors welcome.
+
+This project is public domain, except for the following files:
+  scripts/vectormath.js
+  scripts/draw.js
+  scripts/math.js
+  scripts/require.js
+
+. . . which make use of code from an Apple WebGL demo, as well as require.js.
+
+The rest of the files are public domain:
+  scripts/patch.js
+  scripts/subdiv.js
+  scripts/mesh.js
+  scripts/polyfil.js
+  scripts/screen.js
+  scripts/modaltool.js
+  scripts/app.js
+
+  
