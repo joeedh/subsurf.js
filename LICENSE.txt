@@ -7,15 +7,16 @@ This includes (but is not limited to):
   scripts/screen.js
   scripts/modaltool.js
   scripts/app.js
+  scripts/utils.js
 
-The following files contain code from an apple WebGL demo
+The following files are licensed under variants of MIT or Apache:
   scripts/vectormath.js
   scripts/math.js
   scripts/draw.js
   scripts/dat.gui
   scripts/require.js
   
-. . .and are licensed thus (note: there are multiple licenses here):
+Vectormath.js, parts of math.js and one function in draw.js are licensed under:
 
 /* 
  * Copyright (C) 2009 Apple Inc. All Rights Reserved.
@@ -42,9 +43,10 @@ The following files contain code from an apple WebGL demo
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
  
- also, scripts/require.js has the following license:
  
- RequireJS is released under two licenses: new BSD, and MIT. You may pick the
+---------------------------------------------------------------------
+
+RequireJS is released under two licenses: new BSD, and MIT. You may pick the
 license that best suits your development needs. The text of both licenses are
 provided below.
 
@@ -102,6 +104,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+-----------------------------------------------------------------------
 
 public/scripts/dat.gui has the following license disclaimer:
 /**
